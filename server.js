@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 4242;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const stripe = process.env.STRIPE_SECRET_KEY ? Stripe(process.env.STRIPE_SECRET_KEY) : null;
 const DATA = path.join(__dirname, "data", "bookings.json");
+fs.mkdirSync(path.dirname(DATA), { recursive: true });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
