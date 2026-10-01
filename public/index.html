@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fast Car — Prenota</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f5f7fa;color:#111}header{background:#111;color:#fff;padding:20px 7%;display:flex;justify-content:space-between}main{max-width:900px;margin:40px auto;padding:20px}.card{background:#fff;padding:30px;border-radius:18px;box-shadow:0 8px 30px #0001}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}label{font-weight:700;display:block;margin:8px 0}input,select,button{width:100%;box-sizing:border-box;padding:13px;border:1px solid #ddd;border-radius:10px}button{background:#111;color:#fff;font-weight:700;border:0;margin-top:18px;cursor:pointer}.price{font-size:34px;font-weight:800;margin-top:20px}.msg{margin-top:15px}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style></head><body>
+<header><strong>FAST CAR</strong><span>Cagliari & dintorni</span></header>
+<main><div class="card"><h1>Prenota la tua auto</h1><div class="grid">
+<div><label>Ritiro</label><input id="start" type="date"></div>
+<div><label>Riconsegna</label><input id="end" type="date"></div>
+<div><label>Categoria</label><select id="car"></select></div>
+<div><label>Nome</label><input id="name" placeholder="Mario Rossi"></div>
+<div><label>Email</label><input id="email" type="email" placeholder="nome@email.it"></div>
+</div><div class="price">€ <span id="price">—</span></div>
+<p>Il prezzo mostrato è il prezzo Fast Car.</p><button id="pay">Continua al pagamento</button><div class="msg" id="msg"></div>
+</div></main>
+<script>
+let cars={}; const carEl=document.querySelector("#car"), priceEl=document.querySelector("#price"), msg=document.querySelector("#msg");
+fetch("/api/cars").then(r=>r.json()).then(x=>{cars=x; for(const [k,c] of Object.entries(x)){const o=document.createElement("option");o.value=k;o.textContent=`${c.name} — €${c.sell}`;carEl.appendChild(o)}; update();});
+function update(){const c=cars[carEl.value]; priceEl.textContent=c?c.sell:"—"} carEl.onchange=update;
+document.querySelector("#pay").onclick=async()=>{msg.textContent="";const body={name:name.value,email:email.value,start:start.value,end:end.value,carKey:carEl.value};
+if(!body.name||!body.email||!body.start||!body.end){msg.textContent="Compila tutti i campi.";return}
+const r=await fetch("/api/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const d=await r.json();
+if(d.url) location.href=d.url; else msg.textContent=d.message||d.error||"Errore";
+};
+</script></body></html>
